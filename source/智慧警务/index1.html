@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and WebSocket Example</title>
+    <!-- 引入 Chart.js 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            width: 100%;
+            max-width: 600px;  /* 最大宽度为600px，可以根据需要调整 */
+            height: auto;      /* 高度自动按比例调整 */
+        }
+    </style>
+    
+</head>
+<body>
+    <h2>Login and WebSocket Interaction</h2>
+    <button id="activate-btn">Activate App</button>
+    <button id="login-btn" style="display:none;">Login and Connect</button>
+    <p>Status: <span id="status">Waiting to activate...</span></p>
+    <!-- 图表渲染位置 -->
+    <canvas id="signalChart"></canvas>
+    <h3>Received Messages:</h3>
+    <!-- 可以选择隐藏原来的消息列表或保留用于其他目的 -->
+    <!-- <ul id="messages"></ul> -->
+    <!-- 底部引入 app.js 脚本 -->
+    <script src="js/app.js"></script>
+</body>
+</html>

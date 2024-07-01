@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D演示</title>
+</head>
+<body>
+<script src="js/three.js"></script>
+<script src="js/OBJLoader.js"></script>
+<script type="text/javascript">
+
+		/*场景*/
+		var scene = new THREE.Scene();
+
+		/*像机*/
+		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	    /*
+	    ** 相机后移的幅度
+		** 关键参数 如果跟模型不匹配 会导致看不到模型 也会黑屏
+		** 本模型设置为10 其他模型需要自己调整
+ 		*/
+		camera.position.z = 10;
+		scene.add(camera);
+
+		/*渲染器*/
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );//画布大小
+		document.body.appendChild( renderer.domElement ); //添加到Html上
+
+       /*
+	   **光源
+	   **光源很重要 没有光源也会黑屏
+	   */
+	   var light = new THREE.DirectionalLight(0xffffff);//光源颜色
+       light.position.set(20, 10, 10);//光源位置
+       scene.add(light);//加入场景
+
+
+
+		/*加载器*/
+		var objLoader = new THREE.OBJLoader();
+
+        objLoader.load('cloud.obj', function(object) {
+            scene.add(object);//加入场景
+			 /*
+			 ** 渲染操作
+			 ** 一定写此处或者回调当中
+			 ** 因为load是个异步操作，写到外部会出现没加载完就开始渲染情况：黑屏
+			 */
+			renderer.render( scene, camera );
+        });
+	</script>
+</body>
+</html>

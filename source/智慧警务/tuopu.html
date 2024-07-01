@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3.js Network Topology Demo</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body style="background-color: white;">
+<div id="tuopu"></div>
+</body>
+<script>
+
+const username = 'admin'; // Replace with actual username
+const password = 'admin'; // Replace with actual password
+    // console.log('111');
+login(username, password)
+        .then(token => {
+            console.log("Token:", token);
+            alert('success1');
+
+            obtaininfo_tuopu(token);
+
+        })
+        .catch(error => {
+            alert('failed');
+            console.error("Login failed:", error);
+
+        });
+
+async function login(username, password) {
+    const url = 'http://localhost/api/wrtmng/1/user/login'; // Replace with the actual login URL
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+    });
+    //反向代理  CORS
+    console.log(response); // 打印整个响应对象
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data.result.token;
+}
+
+function obtaininfo_tuopu(token){
+    const stamp = Date.now()
+    const wsUrl = `http://localhost/api/wrtmng/1/dev/status?token=${token}&name=net.mesh_vis&_=${stamp}`;
+    fetch(wsUrl)
+        .then(response => response.json())  // 将响应转换为JSON
+        .then(data => {
+            console.log('tuopu Status Response:', data);  // 在控制台输出WLAN状态数据
+            console.log('tuopu Status Response1:', data.result.status.vis[0].device);  // 在控制台输出WLAN状态数据
+            var jsonData = data;
+             // 创建 SVG 元素
+            var svg = d3.select("#tuopu")
+                        .append("svg")
+                        .attr("width", 450)
+                        .attr("height", 300);
+
+            // 定义节点和链接的数据
+            data=jsonData.result.status.vis
+            leng=jsonData.result.status.vis.length
+            nodes=[]
+
+            for (var i = 0; i < leng; i++){
+
+               nodes.push({ id: data[i].hostname+"\n"+data[i].device, url: "https://www.example1.com" })
+        }
+
+
+
+           if(leng==1){
+        var links = [
+        {source: nodes[0], target: nodes[0]}
+    ];
+    }else if(leng==2){
+         var links = [
+        {source: nodes[0], target: nodes[1]}];
+
+    }else{
+    var links = [
+        {source: nodes[0], target: nodes[1]},
+        {source: nodes[1], target: nodes[2]},
+        {source: nodes[0], target: nodes[2]}];
+    }
+
+            // 创建力导向图
+            var simulation = d3.forceSimulation(nodes)
+                               .force("link", d3.forceLink(links).distance(200))
+                               .force("charge", d3.forceManyBody().strength(-400))
+                               .force("center", d3.forceCenter(150, 150));
+
+            // 创建链接
+            var link = svg.append("g")
+                          .selectAll("line")
+                          .data(links)
+                          .join("line")
+                          .attr("stroke", "#999")
+                          .attr("stroke-opacity", 0.6)
+                          .on("click", function(d, i, nodes) {
+            // 'd' 是当前边的数据
+            // 'i' 是当前边的索引
+            // 'nodes' 是当前选择的节点集合（在本例中可能不需要）
+
+            // 假设你有一个函数来创建和显示弹出窗口
+
+          });
+
+            // 创建节点
+            var node = svg.append("g")
+                          .selectAll("a")
+                          .data(nodes)
+                          .join("a")
+                          .attr("xlink:href", d => d.url)
+                          .attr("target", "_blank")
+                          .call(drag(simulation))
+                          .on("click", function(d, i, nodes) {
+            // 'd' 是当前边的数据
+            // 'i' 是当前边的索引
+            // 'nodes' 是当前选择的节点集合（在本例中可能不需要）
+
+            // 假设你有一个函数来创建和显示弹出窗口
+            msg=""
+            for (var j = 0; j < data[i.index].peers.length; j++){
+               msg=msg+"->"+data[i.index].peers[j].mac+"\n"+"distance:"+data[i.index].peers[j].distance+"  "+"noise:"+data[i.index].peers[j].noise_floor+"\n"
+        }
+            var meg = "ip: "+data[i.index].ip+"\n"+msg
+            alert(meg);
+          });
+
+            node.append("circle")
+                .attr("r", 20)
+                .attr("fill", "#69b3a2");
+
+            node.append("text")
+                .attr("dy", "0.35em")
+                .attr("x", 25)
+                .text(d => d.id);
+
+            // 更新力导向图
+            simulation.on("tick", () => {
+                link.attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node.attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            // 定义拖拽行为
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subjectfy = null;
+                }
+
+                return d3.drag()
+                         .on("start", dragstarted)
+                         .on("drag", dragged)
+                         .on("end", dragended);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching WLAN status:', error);  // 处理可能出现的错误
+        });
+}
+
+
+
+</script>
+
+</html>
+

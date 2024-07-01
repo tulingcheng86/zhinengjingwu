@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IofTV-Screen-Vue3</title>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=TXlf8eViE7qrqtTLsciyhopnB6K9imSz"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/jquery.js"></script>
+
+</head>
+<body>
+<div id="map" class="map" style="height:900px"></div>
+</body>
+<script>
+    const map = new window.BMapGL.Map('map'); // 创建Map实例
+  map.enableScrollWheelZoom(); // 启用滚轮放大缩小
+  const point = new BMapGL.Point(113.557035,23.330758);  // 创建点坐标
+  const point1 = new BMapGL.Point(113.552638,23.330078);  // 创建点坐标
+  const point7 = new BMapGL.Point(113.555162,23.328462);  // 创建点坐标
+  const point12 = new BMapGL.Point(113.557412,23.330094);  // 创建点坐标
+  const myIcon = new BMapGL.Icon("img/uav.png",new BMapGL.Size(66,70));
+  const marker6 = new BMapGL.Marker(point7,{icon:myIcon});        // 创建标注
+  const marker12 = new BMapGL.Marker(point12,{icon:myIcon});        // 创建标注
+  map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
+  const marker = new BMapGL.Marker(point1,{icon:myIcon});
+  map.addOverlay(marker);
+  map.addOverlay(marker6);
+  map.addOverlay(marker12);
+  alert("567")
+
+    </script>
+</html>

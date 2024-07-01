@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3.js Network Topology Demo</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body style="background-color: white;">
+<div id="tuopu"></div>
+</body>
+<script>
+    var jsonData = {
+        "status": "success",
+        "result": {
+            "status": {
+                "name": "meshvis",
+                "version": "1",
+                "protocol": "mi-mesh",
+                "local_mac": "00:10:60:14:00:1a",
+                "vis": [
+                    {
+                        "device": "192.168.17.1",
+                        "mesh": "fe:10:60:14:00:1a",
+                        "ip": "192.168.17.1/255.255.255.0",
+                        "hostname": "节点1",
+                        "interfaces": ["02:10:60:14:00:1a"],
+                        "peers": [
+                            {
+                                "router": "02:10:60:14:00:1a",
+                                "mac": "02:10:60:14:00:28",
+                                "last_seen": "0.0s",
+                                "distance": "0.00km",
+                                "ccq": "100%",
+                                "signal": "-30 dBm",
+                                "snr": "65 dB",
+                                "noise_floor": "-104 dBm"
+                            }
+                        ]
+                    },
+                    {
+                        "device": "192.168.17.2",
+                        "mesh": "fe:10:60:14:00:1b",
+                        "ip": "192.168.18.1/255.255.255.0",
+                        "hostname": "节点2",
+                        "interfaces": ["02:10:60:14:00:1b"],
+                        "peers": []
+                    },
+                    {
+                        "device": "192.168.17.3",
+                        "mesh": "fe:10:60:14:00:1c",
+                        "ip": "192.168.19.1/255.255.255.0",
+                        "hostname": "节点3",
+                        "interfaces": ["02:10:60:14:00:1c"],
+                        "peers": []
+                    },
+                    {
+                        "device": "192.168.17.4",
+                        "mesh": "fe:10:60:14:00:1d",
+                        "ip": "192.168.20.1/255.255.255.0",
+                        "hostname": "节点4",
+                        "interfaces": ["02:10:60:14:00:1d"],
+                        "peers": []
+                    }
+                ]
+            }
+        }
+    }
+
+    // 创建 SVG 元素
+    var svg = d3.select("#tuopu")
+                .append("svg")
+                .attr("width", 800)
+                .attr("height", 600);
+
+    // 定义节点和链接的数据
+    var data = jsonData.result.status.vis;
+    var nodes = data.map(d => ({ id: d.hostname + "\n" + d.device, url: "https://www.example.com" }));
+    var links = [
+        { source: nodes[0], target: nodes[1] },
+        { source: nodes[1], target: nodes[2] },
+        { source: nodes[2], target: nodes[3] },
+        { source: nodes[3], target: nodes[0] }, // 形成一个循环
+        { source: nodes[0], target: nodes[2] }, // 对角线连接
+        { source: nodes[1], target: nodes[3] }  // 对角线连接
+    ];
+
+    // 创建力导向图
+    var simulation = d3.forceSimulation(nodes)
+                       .force("link", d3.forceLink(links).distance(200))
+                       .force("charge", d3.forceManyBody().strength(-400))
+                       .force("center", d3.forceCenter(400, 300));
+
+    // 创建链接
+    var link = svg.append("g")
+                  .selectAll("line")
+                  .data(links)
+                  .join("line")
+                  .attr("stroke", "#999")
+                  .attr("stroke-opacity", 0.6);
+
+    // 创建节点
+    var node = svg.append("g")
+                  .selectAll("a")
+                  .data(nodes)
+                  .join("a")
+                  .attr("xlink:href", d => d.url)
+                  .attr("target", "_blank")
+                  .call(drag(simulation));
+
+    node.append("image")
+        .attr("xlink:href", (d, i) => i === 3 ? "./img/地面站.svg" : "./img/uav.svg") // 节点4使用另一张图片
+        .attr("width", 40)
+        .attr("height", 40)
+        .attr("x", -20)
+        .attr("y", -20);
+        
+    node.append("text")
+        .attr("dy", "0.35em")
+        .attr("x", 25)
+        .text(d => d.id);
+
+    // 更新力导向图
+    simulation.on("tick", () => {
+        link.attr("x1", d => d.source.x)
+            .attr("y1", d => d.source.y)
+            .attr("x2", d => d.target.x)
+            .attr("y2", d => d.target.y);
+
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    // 定义拖拽行为
+    function drag(simulation) {
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        return d3.drag()
+                 .on("start", dragstarted)
+                 .on("drag", dragged)
+                 .on("end", dragended);
+    }
+</script>
+</html>

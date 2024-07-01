@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery.js"></script>
+    <script src="js/laydate.js"></script>
+    <script src="js/Home_page.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=TXlf8eViE7qrqtTLsciyhopnB6K9imSz"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<video src="video/basketball.mp4" controls="controls" class="demo2" id="demo2">
+</video>
+<button id="btn">按钮</button>
+<script>
+    $("#btn").click(function () {
+        $('#demo2').attr('src', 'video/test_mv02.mov');
+        document.getElementById("demo2").load();//视频中需要使用load重新加载
+    });
+     // 设置配置选项
+    var options = {
+        responsive: true,
+        animation: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:false
+                }
+            }]
+        },
+        elements: {
+            line: {
+                fill: false
+            }
+        }
+    };
+
+    // 创建折线图对象
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['12:00', '12:05', '12:10', '12:15', '12:20','12:25','12:30','12:35','12:40','12:45','12:50','12:55'],
+            datasets: [{
+                label: 'Data Points',
+                backgroundColor: '#f87979',
+                borderColor: '#f87979',
+                data: dataPoints
+            }]
+        },
+        options: options
+    });
+     // 模拟更新数据并重新绘制折线图
+    setInterval(() => {
+        // 生成随机数作为新的数据点
+        var randomValue = Math.floor((Math.random() * 10) + 1);
+
+        // 将最后一个数据点移除
+        dataPoints.shift();
+
+        // 添加新的数据点到开头位置
+        dataPoints.push(randomValue);
+
+        // 更新折线图数据
+        myLineChart.data.datasets[0].data = dataPoints;
+
+        // 重新绘制折线图
+        myLineChart.update();
+    }, 1000);
+
+    var dynamicContent = document.getElementById("car_flow");
+        var car_flow=0;
+        // 定时器，每隔5秒改变一次内容
+        setInterval(function() {
+            // 生成随机数或其他需要显示的内容
+            var randomContent = Math.floor(Math.random() * 10); // 生成0到10之间的随机数
+
+            // 更新标签内容
+            dynamicContent.textContent = car_flow+randomContent;
+            car_flow=car_flow+randomContent;
+        }, 1000); // 5000毫秒为5秒
+    var bai = document.getElementById("bai");
+    var shi = document.getElementById("shi");
+    var ge = document.getElementById("ge");
+    var avg_speed=document.getElementById("car_avg_speed");
+    var max_speed=document.getElementById("car_max_speed");
+    var base=0
+    setInterval(function() {
+            // 生成随机数或其他需要显示的内容
+            var randomContent = Math.floor(Math.random() * 10); // 生成0到10之间的随机数
+            base=base+randomContent;
+            // 更新标签内容
+            bai.textContent=Math.floor(base/100);
+
+            shi.textContent=Math.floor((base-bai.textContent*100)/10);
+
+            ge.textContent=base%10;
+
+
+
+        }, 1000); // 5000毫秒为5秒
+
+    setInterval(function() {
+            // 生成随机数或其他需要显示的内容
+            var randomNum = Math.floor(Math.random() * 21) - 10;
+
+            avg_speed.textContent=60+randomNum;
+
+
+
+        }, 1000); // 5000毫秒为5秒
+        var maxS = 80;
+        setInterval(function() {
+            // 生成随机数或其他需要显示的内容
+            var randomNum = Math.floor(Math.random() * 3);
+
+            max_speed.textContent=maxS+randomNum;
+            maxS=maxS+randomNum;
+
+
+        }, 10000); // 5000毫秒为5秒
+
+</script>
+</body>
+</html>
+
+<template>
+    <div class="centermap">
+        <div class="maptitle">
+            <div class="zuo"></div>
+            <span class="titletext">{{ title }}</span>
+            <div class="you"></div>
+        </div>
+        <div class="mapwrap">
+            <BorderBox13>
+                <div class="quanguo" @click="getData('china')" v-if="code !== 'china'">中国</div>
+                <v-chart
+                        class="chart"
+                        :option="option"
+                        ref="centerMapRef"
+                        @click="mapClick"
+                        v-if="JSON.stringify(option) != '{}'"
+                />
+            </BorderBox13>
+        </div>
+    </div>
+</template>
+
+
+<template>
+    <div class="dv-capsule-chart">
+        <template v-if="mergedConfig">
+            <div class="label-column">
+                <div v-for="item in data" :key="item.name">
+                    {{ item.name }}
+                </div>
+                <div>&nbsp;</div>
+            </div>
+            <div class="capsule-container">
+                <div class="capsule-item" v-for="(capsule, index) in capsuleLength" :key="index">
+                    <div class="capsule-item-column" :style="`width: ${capsule * 100}%; background-color: ${mergedConfig.colors[index % mergedConfig.colors.length]
+                    };`">
+                        <div v-if="mergedConfig.showValue" class="capsule-item-value">
+                            {{ capsuleValue[index] }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="unit-label">
+                    <div v-for="(label, index) in labelData" :key="label + index">
+                        {{ label }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="unit-text" v-if="mergedConfig.unit">
+                {{ mergedConfig.unit }}
+            </div>
+        </template>
+    </div>
+</template>
