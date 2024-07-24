@@ -68,8 +68,8 @@
     // 创建 SVG 元素
     var svg = d3.select("#tuopu")
                 .append("svg")
-                .attr("width", 800)
-                .attr("height", 600);
+                .attr("width", 420) // 调整宽度
+                .attr("height", 400); // 调整高度
 
     // 定义节点和链接的数据
     var data = jsonData.result.status.vis;
@@ -85,9 +85,9 @@
 
     // 创建力导向图
     var simulation = d3.forceSimulation(nodes)
-                       .force("link", d3.forceLink(links).distance(200))
-                       .force("charge", d3.forceManyBody().strength(-400))
-                       .force("center", d3.forceCenter(400, 300));
+                       .force("link", d3.forceLink(links).distance(100)) // 调整节点之间的距离
+                       .force("charge", d3.forceManyBody().strength(-200)) // 调整力的强度
+                       .force("center", d3.forceCenter(150, 150)); // 调整中心位置
 
     // 创建链接
     var link = svg.append("g")
@@ -108,14 +108,14 @@
 
     node.append("image")
         .attr("xlink:href", (d, i) => i === 3 ? "./img/地面站.svg" : "./img/uav.svg") // 节点4使用另一张图片
-        .attr("width", 40)
-        .attr("height", 40)
-        .attr("x", -20)
-        .attr("y", -20);
+        .attr("width", 20) // 调整图片宽度
+        .attr("height", 20) // 调整图片高度
+        .attr("x", -10)
+        .attr("y", -10);
         
     node.append("text")
         .attr("dy", "0.35em")
-        .attr("x", 25)
+        .attr("x", 15) // 调整文本位置
         .text(d => d.id);
 
     // 更新力导向图
