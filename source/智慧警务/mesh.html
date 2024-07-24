@@ -75,14 +75,13 @@
     var data = jsonData.result.status.vis;
     var nodes = data.map(d => ({ id: d.hostname + "\n" + d.device, url: "https://www.example.com" }));
     var links = [
-        { source: nodes[0], target: nodes[1] },
-        { source: nodes[1], target: nodes[2] },
-        { source: nodes[2], target: nodes[3] },
-        { source: nodes[3], target: nodes[0] }, // 形成一个循环
-        { source: nodes[0], target: nodes[2] }, // 对角线连接
-        { source: nodes[1], target: nodes[3] }  // 对角线连接
-    ];
-
+    { source: nodes[0], target: nodes[1], signal: "-65 dB", ccq: "100%", distance: "0.03km" },
+    { source: nodes[0], target: nodes[2], signal: "-70 dB", ccq: "99%", distance: "0.00km" },
+    { source: nodes[0], target: nodes[3], signal: "-58 dB", ccq: "100%", distance: "0.01km" },
+    { source: nodes[1], target: nodes[2], signal: "-65 dB", ccq: "100%", distance: "0.03km" },
+    { source: nodes[1], target: nodes[3], signal: "-70 dB", ccq: "99%", distance: "0.00km" },
+    { source: nodes[2], target: nodes[3], signal: "-58 dB", ccq: "100%", distance: "0.01km" }
+                ];
     // 创建力导向图
     var simulation = d3.forceSimulation(nodes)
                        .force("link", d3.forceLink(links).distance(100)) // 调整节点之间的距离
@@ -96,6 +95,16 @@
                   .join("line")
                   .attr("stroke", "#999")
                   .attr("stroke-opacity", 0.6);
+    
+    // link.append("line")
+    //     .attr("stroke", "#999")
+    //     .attr("stroke-opacity", 0.6);
+
+    // // 为每个链接添加文本标签
+    // link.append("text")
+    //     .attr("text-anchor", "middle") // 设置文本锚点为中间
+    //     .attr("dy", "-0.5em") // 调整文本垂直位置
+    //     .text(d => `${d.signal} / ${d.ccq} / ${d.distance}`);              
 
     // 创建节点
     var node = svg.append("g")
@@ -125,6 +134,9 @@
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
 
+        // link.select("text") // 选择每个链接的文本标签
+        // .attr("x", d => (d.source.x + d.target.x) / 2) // 设置文本标签的 x 坐标为连线中点
+        // .attr("y", d => (d.source.y + d.target.y) / 2); // 设置文本标签的 y 坐标为连线中点
         node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
